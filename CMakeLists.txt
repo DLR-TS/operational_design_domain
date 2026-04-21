@@ -1,0 +1,95 @@
+cmake_minimum_required(VERSION 3.8)
+project(operational_design_domain VERSION 0.1.0 LANGUAGES CXX)
+
+# C++20 strict mode
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Compile commands for IDE support
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
+# Optimization flags
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  add_compile_options(-O3)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# Dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(adore_math REQUIRED)
+find_package(adore_map REQUIRED)
+find_package(adore_ros2_msgs REQUIRED)
+find_package(adore_math_conversions REQUIRED)
+find_package(adore_map_conversions REQUIRED)
+find_package(adore_dynamics_conversions REQUIRED)
+
+find_package(sensor_msgs REQUIRED)
+
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+
+# Library with core visualization code
+add_library(operational_design_domain_core OBJECT 
+  src/operational_design_domain.cpp
+)
+
+target_include_directories(operational_design_domain_core 
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${OpenCV_INCLUDE_DIRS}
+)
+
+ament_target_dependencies(operational_design_domain_core 
+  rclcpp
+  rclcpp_components
+  std_msgs
+  geometry_msgs
+  adore_math
+  adore_map
+  adore_ros2_msgs
+  adore_math_conversions
+  adore_map_conversions
+  adore_dynamics_conversions
+  tf2
+  tf2_ros
+  sensor_msgs
+)
+
+# Executable (unchanged name)
+add_executable(${PROJECT_NAME}
+  src/main.cpp
+  $<TARGET_OBJECTS:operational_design_domain_core>
+)
+
+target_link_libraries(${PROJECT_NAME}
+  operational_design_domain_core
+)
+
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${OpenCV_INCLUDE_DIRS}
+)
+
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  rclcpp_components
+)
+
+install(TARGETS ${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+ament_package()
