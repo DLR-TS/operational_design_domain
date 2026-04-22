@@ -110,6 +110,11 @@ void OperationalDeisngDomain::timer_callback()
   if ( odd_violation.has_value() )
   {
     odd_msgs.status = odd_violation.value();
+
+    if ( odd_msgs.status.size() >= 2 ) // This is just to remove the last comma in the text to make the status look nicer visualy
+    {
+      odd_msgs.status.resize(odd_msgs.status.size() - 2);
+    }
   }
 
   publisher_odd->publish( odd_msgs );
@@ -202,7 +207,7 @@ void OperationalDeisngDomain::evaluate_time(Violation& violation)
   
   if ( current_hour_of_the_day < earlier_hour_of_the_day || current_hour_of_the_day > latest_hour_of_the_day )
   {
-    violation += "vehicle is only allowed to drive between [" + std::to_string(earlier_hour_of_the_day) + ";" + std::to_string(latest_hour_of_the_day) + "] o'clock. Current time " + std::to_string(current_hour_of_the_day) + ":" + std::to_string(current_minnute_of_the_hour) + " o'clock, ";
+    violation += "vehicle is only allowed to drive between [" + std::to_string(earlier_hour_of_the_day) + ";" + std::to_string(latest_hour_of_the_day) + "] o'clock (Current time " + std::to_string(current_hour_of_the_day) + ":" + std::to_string(current_minnute_of_the_hour) + "), ";
     return;
   }
 
